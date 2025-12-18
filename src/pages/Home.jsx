@@ -112,7 +112,7 @@ function Home() {
         }
     }, [selectedPeriod, isFullScreenLoading]) // Se ejecuta al cambiar periodo para refrescar vista
 
-    // 3. FUSIÓN DE DATOS (Pensum + Notas)
+    // 3. FUSIÓN DE DATOS (Pensum + Notas + Cálculo de Índice y ESTADO)
     useEffect(() => {
         if (!pensumData) return
 
@@ -151,12 +151,11 @@ function Home() {
 
         setDisplayedGrades(mergedData)
 
-        // --- CÁLCULO DEL PROMEDIO (ÍNDICE ACADÉMICO) ---
-        let totalQualityPoints = 0 // Puntos * Créditos
-        let totalAttemptedCredits = 0 // Créditos cursados
+        // --- CÁLCULO DEL PROMEDIO (GPA) ---
+        let totalQualityPoints = 0
+        let totalAttemptedCredits = 0
 
         mergedData.forEach((subject) => {
-            // Solo calculamos si tiene nota válida (NFA > 0 o tiene literal asignado)
             if (
                 subject.hasGrade &&
                 subject.letter &&
@@ -165,8 +164,6 @@ function Home() {
                 subject.letter !== "R"
             ) {
                 let points = 0
-
-                // Tabla de Valores (Art. 12 PDF)
                 switch (subject.letter) {
                     case "A":
                         points = 4
@@ -184,35 +181,38 @@ function Home() {
                         points = 0
                         break
                     default:
-                        points = 0 // EC, I, R no suman puntos pero tampoco se promedian si no se completaron
+                        points = 0
                 }
-
-                // Sumar productos (Puntos * Créditos)
                 totalQualityPoints += points * subject.credits
-
-                // Sumar créditos solo si la materia tuvo calificación final (A, B, C, D, F)
                 totalAttemptedCredits += subject.credits
             }
         })
 
-        // División y Redondeo (Art. 12 PDF)
         let calculatedGPA = 0
         if (totalAttemptedCredits > 0) {
             const rawGPA = totalQualityPoints / totalAttemptedCredits
-            // Redondeo a un decimal (0-4 baja, 5-9 sube) -> Math.round(X * 10) / 10 hace esto estándar
             calculatedGPA = Math.round(rawGPA * 10) / 10
         }
 
-        // Créditos totales del periodo (informativo)
         const periodTotalCredits = mergedData.reduce((sum, item) => sum + (item.credits || 0), 0)
 
-        const hasAnyGrade = mergedData.some((g) => g.hasGrade)
-        const status = hasAnyGrade ? "Cursando / Finalizado" : "No Cursado"
+        // --- NUEVA LÓGICA DE ESTADO (Cursando vs Finalizado vs No Cursado) ---
+        const hasGrades = mergedData.some((g) => g.hasGrade) // ¿Tiene alguna materia inscrita/con nota?
+        const hasEC = mergedData.some((g) => g.letter === "EC") // ¿Hay alguna materia "En Curso"?
 
-        // Guardamos el GPA calculado
+        let status = "No Cursado"
+
+        if (hasGrades) {
+            if (hasEC) {
+                status = "Cursando" // Si tiene notas y al menos una es EC -> Cursando
+            } else {
+                status = "Finalizado" // Si tiene notas y NINGUNA es EC -> Finalizado
+            }
+        }
+
         setPeriodInfo({
             credits: periodTotalCredits,
-            average: calculatedGPA.toFixed(1), // Mostramos "3.5" o "4.0"
+            average: calculatedGPA.toFixed(1),
             status,
         })
     }, [selectedPeriod, pensumData, currentGrades])
@@ -243,6 +243,7 @@ function Home() {
                 user={user}
                 shortName={shortName}
                 pensumData={pensumData}
+                allGrades={currentGrades}
                 displayedGrades={displayedGrades}
                 periodInfo={periodInfo}
                 selectedPeriod={selectedPeriod}

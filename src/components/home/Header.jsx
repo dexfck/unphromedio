@@ -4,8 +4,9 @@ import {PeriodDropdown} from "./PeriodDropdown"
 export const Header = ({user, shortName, selectedPeriod, setSelectedPeriod}) => {
     return (
         <header className='col-span-2 bg-zinc-800 rounded-2xl flex items-center justify-between px-8 border border-zinc-700 shadow-xl z-50 relative'>
-            <div className='bg-green-900/20 px-6 py-2 rounded-2xl border border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.1)]'>
-                <h1 className='text-xl font-black tracking-widest text-green-500 font-sans'>
+            {/* Título limpio sin estilos de botón */}
+            <div>
+                <h1 className='text-2xl font-black tracking-widest text-green-500 font-sans select-none'>
                     UNPHROMEDIO
                 </h1>
             </div>

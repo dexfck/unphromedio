@@ -1,6 +1,7 @@
 export const API_CONFIG = {
     // URL Base
-    BASE_URL_GATEWAY: "https://client-api-gateway.unphusist.unphu.edu.do",
+    BASE_URL_GATEWAY:
+        import.meta.env.API_URL || "https://client-api-gateway.unphusist.unphu.edu.do",
 
     // Endpoints
     LOGIN_URL: "/student-login/login",
