@@ -4,6 +4,7 @@ import {getUserInfo} from "../services/userInfo"
 import {getSemesterGrades} from "../services/semesterGrades.js"
 import {getSelection} from "../services/selection.js"
 import {processGrades} from "../utils/gradeHelpers.js"
+import {StatusBar, Style} from "@capacitor/status-bar"
 
 // Componentes
 import {FullScreenLoader} from "../components/ui/FullScreenLoader"
@@ -33,6 +34,26 @@ function Home() {
 
     // Estados para móvil
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    useEffect(() => {
+        const configurarBarra = async () => {
+            try {
+                // Pone los iconos (batería, hora) en color CLARO (Blanco)
+                await StatusBar.setStyle({style: Style.Dark})
+
+                // Pone el fondo de la barra en un color sólido (ej: negro o gris oscuro)
+                // CAMBIA '#121212' por el color de fondo de tu app si quieres que combine
+                await StatusBar.setBackgroundColor({color: "#121212"})
+
+                // IMPORTANTE: Esto evita que la app se meta debajo de la batería
+                await StatusBar.setOverlaysWebView({overlay: false})
+            } catch (e) {
+                console.log("No estamos en el cel, ignorando error...")
+            }
+        }
+
+        configurarBarra()
+    }, [])
 
     // 1. CARGA INICIAL
     useEffect(() => {
@@ -116,11 +137,7 @@ function Home() {
                 if (gradeCode === pensumCode) return true
 
                 const gradeName = (grade.course || grade.subject || "").toLowerCase()
-                const pensumName = (
-                    pensumSubject.course ||
-                    pensumSubject.subject ||
-                    ""
-                ).toLowerCase()
+                const pensumName = (pensumSubject.course || pensumSubject.subject || "").toLowerCase()
                 if (gradeName === pensumName) return true
 
                 if (gradeCode && pensumName.includes(gradeCode.toLowerCase())) return true
@@ -145,13 +162,7 @@ function Home() {
         let totalAttemptedCredits = 0
 
         mergedData.forEach((subject) => {
-            if (
-                subject.hasGrade &&
-                subject.letter &&
-                subject.letter !== "EC" &&
-                subject.letter !== "CV" &&
-                subject.letter !== "R"
-            ) {
+            if (subject.hasGrade && subject.letter && subject.letter !== "EC" && subject.letter !== "CV" && subject.letter !== "R") {
                 let points = 0
                 switch (subject.letter) {
                     case "A":
@@ -224,97 +235,41 @@ function Home() {
         <div className='h-screen bg-zinc-900 text-white font-sans selection:bg-green-500/30 relative select-none overflow-hidden'>
             <FullScreenLoader isLoading={isFullScreenLoading} />
 
-            <MobileMenu
-                isOpen={isMobileMenuOpen}
-                onClose={() => setIsMobileMenuOpen(false)}
-                periodInfo={periodInfo}
-                setActiveModal={setActiveModal}
-            />
+            <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} periodInfo={periodInfo} setActiveModal={setActiveModal} />
 
-            <HomeModals
-                activeModal={activeModal}
-                setActiveModal={setActiveModal}
-                user={user}
-                shortName={shortName}
-                pensumData={pensumData}
-                allGrades={currentGrades}
-                displayedGrades={displayedGrades}
-                periodInfo={periodInfo}
-                selectedPeriod={selectedPeriod}
-                onLogout={handleLogout}
-            />
+            <HomeModals activeModal={activeModal} setActiveModal={setActiveModal} user={user} shortName={shortName} pensumData={pensumData} allGrades={currentGrades} displayedGrades={displayedGrades} periodInfo={periodInfo} selectedPeriod={selectedPeriod} onLogout={handleLogout} />
 
             <div className='max-w-400 mx-auto h-full'>
                 {/* MOBILE LAYOUT con espaciado correcto */}
-                <div className='lg:hidden flex flex-col h-full p-3 pt-safe gap-3'>
-                    <Header
-                        user={user}
-                        shortName={shortName}
-                        selectedPeriod={selectedPeriod}
-                        setSelectedPeriod={setSelectedPeriod}
-                        onMenuClick={() => setIsMobileMenuOpen(true)}
-                        isMobile={true}
-                    />
+                <div className='lg:hidden flex flex-col h-full p-5 pt-safe gap-3'>
+                    <Header user={user} shortName={shortName} selectedPeriod={selectedPeriod} setSelectedPeriod={setSelectedPeriod} onMenuClick={() => setIsMobileMenuOpen(true)} isMobile={true} />
 
                     {/* Contenedor con padding bottom para el summary card */}
                     <div className='flex-1 overflow-hidden pb-41.25'>
-                        <GradesTable
-                            isRefreshing={isRefreshing}
-                            handleRefresh={handleRefresh}
-                            displayedGrades={displayedGrades}
-                            headers={headers}
-                            selectedPeriod={selectedPeriod}
-                            status={periodInfo.status}
-                            isMobile={true}
-                        />
+                        <GradesTable isRefreshing={isRefreshing} handleRefresh={handleRefresh} displayedGrades={displayedGrades} headers={headers} selectedPeriod={selectedPeriod} status={periodInfo.status} isMobile={true} />
                     </div>
 
                     {/* SUMMARY CARD FIJO EN LA PARTE INFERIOR */}
-                    <div className='fixed bottom-0 left-0 right-0 p-3 pb-safe bg-zinc-900/95 backdrop-blur-md border-t border-zinc-700 z-40 lg:hidden'>
+                    <div className='fixed bottom-0 left-0 right-0 p-5 pb-safe bg-zinc-900/95 backdrop-blur-md border-zinc-700 z-40 lg:hidden'>
                         <div className='bg-linear-to-br from-green-600 to-emerald-900 rounded-lg p-4 shadow-lg border border-green-500 relative overflow-hidden'>
                             <div className='absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none' />
                             <div className='relative z-10'>
                                 <div className='flex justify-between items-start mb-2'>
                                     <div>
-                                        <p className='text-green-200 text-[10px] font-bold uppercase tracking-wider'>
-                                            Periodo {selectedPeriod}
-                                        </p>
-                                        <div
-                                            className={`inline-flex items-center px-2 py-0.5 rounded-full border font-bold uppercase text-[9px] mt-1 ${
-                                                periodInfo.status === "Cursando"
-                                                    ? "bg-green-500 text-zinc-900 border-green-400"
-                                                    : periodInfo.status === "Finalizado"
-                                                    ? "bg-blue-500 text-white border-blue-400"
-                                                    : "bg-zinc-800 text-zinc-500 border-zinc-700"
-                                            }`}>
-                                            <div
-                                                className={`w-1.5 h-1.5 rounded-full mr-1 ${
-                                                    periodInfo.status === "Cursando"
-                                                        ? "bg-zinc-900 animate-pulse"
-                                                        : periodInfo.status === "Finalizado"
-                                                        ? "bg-white"
-                                                        : "bg-zinc-600"
-                                                }`}
-                                            />
+                                        <p className='text-green-200 text-[10px] font-bold uppercase tracking-wider'>Periodo {selectedPeriod}</p>
+                                        <div className={`inline-flex items-center px-2 py-0.5 rounded-full border font-bold uppercase text-[9px] mt-1 ${periodInfo.status === "Cursando" ? "bg-green-500 text-zinc-900 border-green-400" : periodInfo.status === "Finalizado" ? "bg-blue-500 text-white border-blue-400" : "bg-zinc-800 text-zinc-500 border-zinc-700"}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full mr-1 ${periodInfo.status === "Cursando" ? "bg-zinc-900 animate-pulse" : periodInfo.status === "Finalizado" ? "bg-white" : "bg-zinc-600"}`} />
                                             {periodInfo.status}
                                         </div>
                                     </div>
                                     <div className='text-right'>
-                                        <span className='block text-[9px] text-green-300 uppercase font-bold tracking-wider'>
-                                            Promedio
-                                        </span>
-                                        <span className='text-3xl font-black text-white font-mono'>
-                                            {periodInfo.average}
-                                        </span>
+                                        <span className='block text-[9px] text-green-300 uppercase font-bold tracking-wider'>Promedio</span>
+                                        <span className='text-3xl font-black text-white font-mono'>{periodInfo.average}</span>
                                     </div>
                                 </div>
                                 <div className='flex justify-between items-center mt-2 pt-2 border-t border-green-400/20'>
-                                    <span className='text-green-200 text-xs font-medium'>
-                                        Total Créditos
-                                    </span>
-                                    <span className='text-2xl font-black text-white font-mono'>
-                                        {periodInfo.credits}
-                                    </span>
+                                    <span className='text-green-200 text-xs font-medium'>Total Créditos</span>
+                                    <span className='text-2xl font-black text-white font-mono'>{periodInfo.credits}</span>
                                 </div>
                             </div>
                         </div>
@@ -323,27 +278,9 @@ function Home() {
 
                 {/* DESKTOP LAYOUT */}
                 <div className='hidden lg:grid h-screen grid-cols-[300px_1fr] grid-rows-[80px_1fr] gap-4 p-4'>
-                    <Header
-                        user={user}
-                        shortName={shortName}
-                        selectedPeriod={selectedPeriod}
-                        setSelectedPeriod={setSelectedPeriod}
-                        isMobile={false}
-                    />
-                    <Sidebar
-                        selectedPeriod={selectedPeriod}
-                        periodInfo={periodInfo}
-                        setActiveModal={setActiveModal}
-                    />
-                    <GradesTable
-                        isRefreshing={isRefreshing}
-                        handleRefresh={handleRefresh}
-                        displayedGrades={displayedGrades}
-                        headers={headers}
-                        selectedPeriod={selectedPeriod}
-                        status={periodInfo.status}
-                        isMobile={false}
-                    />
+                    <Header user={user} shortName={shortName} selectedPeriod={selectedPeriod} setSelectedPeriod={setSelectedPeriod} isMobile={false} />
+                    <Sidebar selectedPeriod={selectedPeriod} periodInfo={periodInfo} setActiveModal={setActiveModal} />
+                    <GradesTable isRefreshing={isRefreshing} handleRefresh={handleRefresh} displayedGrades={displayedGrades} headers={headers} selectedPeriod={selectedPeriod} status={periodInfo.status} isMobile={false} />
                 </div>
             </div>
         </div>

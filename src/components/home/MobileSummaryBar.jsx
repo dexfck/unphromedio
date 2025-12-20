@@ -10,7 +10,7 @@ export const MobileSummaryBar = ({periodInfo}) => {
 
     return (
         <div
-            className={`fixed bottom-0 left-0 right-0 bg-[#121214]/95 backdrop-blur-xl border-t ${containerClasses} p-4 z-50 lg:hidden pb-safe`}>
+            className={`fixed bottom-0 left-0 right-0 bg-[#121214]/95 backdrop-blur-xl ${containerClasses} p-4 z-50 lg:hidden pb-safe`}>
             <div className='flex items-center justify-between max-w-md mx-auto'>
                 {/* Izquierda: Periodo y Estado */}
                 <div className='flex flex-col'>
