@@ -19,7 +19,7 @@ export const MobileSummaryBar = ({periodInfo}) => {
                             Periodo {periodInfo.period}
                         </span>
                         <div
-                            className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                            className={`px-2 py-0.5 rounded-lg-lg text-[9px] font-black uppercase tracking-wider ${
                                 isCursando ? "bg-green-500 text-black" : "bg-blue-600 text-white"
                             }`}>
                             {periodInfo.status}
@@ -34,7 +34,7 @@ export const MobileSummaryBar = ({periodInfo}) => {
                 </div>
 
                 {/* Derecha: Promedio (Tarjeta Verde) */}
-                <div className='bg-gradient-to-br from-green-600 to-emerald-800 px-5 py-2 rounded-xl border border-green-500/50 shadow-lg flex flex-col items-center min-w-[100px]'>
+                <div className='bg-linear-to-br from-green-600 to-emerald-800 px-5 py-2 roundex-lg border border-green-500/50 shadow-lg flex flex-col items-center min-w-[100px]'>
                     <span className='text-[9px] font-bold text-green-100 uppercase tracking-widest mb-0.5'>
                         Promedio
                     </span>

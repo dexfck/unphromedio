@@ -16,3 +16,9 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+@layer components {
+    .standard-rounded-lg-lg {
+        @apply rounded-lg;
+    }
+}

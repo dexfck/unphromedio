@@ -180,7 +180,7 @@ function Home() {
         let calculatedGPA = 0
         if (totalAttemptedCredits > 0) {
             const rawGPA = totalQualityPoints / totalAttemptedCredits
-            calculatedGPA = Math.round(rawGPA * 10) / 10
+            calculatedGPA = Math.round(rawGPA * 100) / 100
         }
 
         const periodTotalCredits = mergedData.reduce((sum, item) => sum + (item.credits || 0), 0)
@@ -198,7 +198,7 @@ function Home() {
 
         setPeriodInfo({
             credits: periodTotalCredits,
-            average: calculatedGPA.toFixed(1),
+            average: calculatedGPA.toFixed(2),
             status,
             period: selectedPeriod,
         })
@@ -244,7 +244,7 @@ function Home() {
                 onLogout={handleLogout}
             />
 
-            <div className='max-w-[1600px] mx-auto h-full'>
+            <div className='max-w-400 mx-auto h-full'>
                 {/* MOBILE LAYOUT con espaciado correcto */}
                 <div className='lg:hidden flex flex-col h-full p-3 pt-safe gap-3'>
                     <Header
@@ -257,7 +257,7 @@ function Home() {
                     />
 
                     {/* Contenedor con padding bottom para el summary card */}
-                    <div className='flex-1 overflow-hidden pb-[165px]'>
+                    <div className='flex-1 overflow-hidden pb-41.25'>
                         <GradesTable
                             isRefreshing={isRefreshing}
                             handleRefresh={handleRefresh}
@@ -271,7 +271,7 @@ function Home() {
 
                     {/* SUMMARY CARD FIJO EN LA PARTE INFERIOR */}
                     <div className='fixed bottom-0 left-0 right-0 p-3 pb-safe bg-zinc-900/95 backdrop-blur-md border-t border-zinc-700 z-40 lg:hidden'>
-                        <div className='bg-gradient-to-br from-green-600 to-emerald-900 rounded-2xl p-4 shadow-lg border border-green-500 relative overflow-hidden'>
+                        <div className='bg-linear-to-br from-green-600 to-emerald-900 rounded-lg p-4 shadow-lg border border-green-500 relative overflow-hidden'>
                             <div className='absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none' />
                             <div className='relative z-10'>
                                 <div className='flex justify-between items-start mb-2'>

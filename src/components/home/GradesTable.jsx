@@ -26,10 +26,19 @@ export const GradesTable = ({
 
     const hasActiveSubjects = displayedGrades.some((g) => g.hasGrade)
 
+    // Función para filtrar headers con valores
+    const getAvailableHeaders = (rubrics) => {
+        if (!rubrics) return []
+        return headers.filter((header) => {
+            const val = rubrics[header]
+            return val && val !== "" && val !== "NR" && val !== "-"
+        })
+    }
+
     // VERSIÓN MÓVIL CON CARDS
     if (isMobile) {
         return (
-            <main className='bg-zinc-800 rounded-2xl border border-zinc-700 overflow-hidden flex flex-col shadow-2xl relative z-0 h-full'>
+            <main className='bg-zinc-800 rounded-lg border border-zinc-700 overflow-hidden flex flex-col shadow-2xl relative z-0 h-full'>
                 <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600'></div>
 
                 {/* HEADER */}
@@ -60,91 +69,121 @@ export const GradesTable = ({
                 {/* CONTENIDO - CARDS EXPANDIBLES */}
                 <div className='flex-1 overflow-y-auto p-2 space-y-2'>
                     {hasActiveSubjects ? (
-                        displayedGrades.map((row, index) => (
-                            <div
-                                key={index}
-                                className='bg-zinc-900/80 border border-zinc-700 rounded-xl overflow-hidden'>
-                                {/* HEADER DEL CARD (SIEMPRE VISIBLE) */}
-                                <button
-                                    onClick={() =>
-                                        setExpandedCard(expandedCard === index ? null : index)
-                                    }
-                                    className='w-full p-3 flex items-center justify-between hover:bg-zinc-700/30 transition-colors'>
-                                    <div className='flex items-center gap-3 flex-1 min-w-0'>
-                                        <div className='shrink-0'>
-                                            {row.letter ? (
-                                                <span
-                                                    className={`px-2 py-1 rounded text-xs font-bold font-mono inline-block min-w-[32px] text-center ${getLiteralStyle(
-                                                        row.letter
-                                                    )}`}>
-                                                    {row.letter}
-                                                </span>
-                                            ) : (
-                                                <span className='px-2 py-1 rounded text-xs font-mono text-zinc-700 bg-zinc-800 border border-zinc-700'>
-                                                    -
+                        displayedGrades.map((row, index) => {
+                            // Obtener solo los headers que tienen valores
+                            const availableHeaders = getAvailableHeaders(row.rubrics)
+                            const hasRubrics = availableHeaders.length > 0
+
+                            return (
+                                <div
+                                    key={index}
+                                    className='bg-zinc-900/80 border border-zinc-700 rounded-lg overflow-hidden'>
+                                    {/* HEADER DEL CARD (SIEMPRE VISIBLE) */}
+                                    <button
+                                        onClick={() =>
+                                            hasRubrics &&
+                                            setExpandedCard(expandedCard === index ? null : index)
+                                        }
+                                        className={`w-full p-3 flex items-center justify-between transition-colors ${
+                                            hasRubrics
+                                                ? "hover:bg-zinc-700/30 cursor-pointer"
+                                                : "cursor-default"
+                                        }`}
+                                        disabled={!hasRubrics}>
+                                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                                            <div className='shrink-0'>
+                                                {row.letter ? (
+                                                    <span
+                                                        className={`px-2 py-1 rounded text-xs font-bold font-mono inline-block min-w-8 text-center ${getLiteralStyle(
+                                                            row.letter
+                                                        )}`}>
+                                                        {row.letter}
+                                                    </span>
+                                                ) : (
+                                                    <span className='px-2 py-1 rounded text-xs font-mono text-zinc-700 bg-zinc-800 border border-zinc-700'>
+                                                        -
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className='flex-1 min-w-0 text-left'>
+                                                <p className='text-sm font-bold text-white truncate pr-2'>
+                                                    {row.subject}
+                                                </p>
+                                                <p className='text-[10px] text-zinc-500 font-mono'>
+                                                    {row.code} · {row.credits} Cr
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className='flex items-center gap-2 shrink-0'>
+                                            {row.nfa > 0 && (
+                                                <span className='text-xs font-mono font-bold text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-500/30'>
+                                                    {parseFloat(row.nfa).toFixed(0)}
                                                 </span>
                                             )}
+                                            {hasRubrics && (
+                                                <ChevronDown
+                                                    className={`w-5 h-5 text-zinc-400 transition-transform ${
+                                                        expandedCard === index ? "rotate-180" : ""
+                                                    }`}
+                                                />
+                                            )}
                                         </div>
-                                        <div className='flex-1 min-w-0 text-left'>
-                                            <p className='text-sm font-bold text-white truncate pr-2'>
-                                                {row.subject}
-                                            </p>
-                                            <p className='text-[10px] text-zinc-500 font-mono'>
-                                                {row.code} · {row.credits} Cr
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center gap-2 shrink-0'>
-                                        {row.nfa > 0 && (
-                                            <span className='text-xs font-mono font-bold text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-500/30'>
-                                                {parseFloat(row.nfa).toFixed(0)}
-                                            </span>
-                                        )}
-                                        <ChevronDown
-                                            className={`w-5 h-5 text-zinc-400 transition-transform ${
-                                                expandedCard === index ? "rotate-180" : ""
-                                            }`}
-                                        />
-                                    </div>
-                                </button>
+                                    </button>
 
-                                {/* DETALLE EXPANDIBLE */}
-                                {expandedCard === index && (
-                                    <div className='border-t border-zinc-700 p-3 bg-zinc-950/50 space-y-2 animate-in slide-in-from-top-2 duration-200'>
-                                        {headers.map((header) => {
-                                            const val = row.rubrics ? row.rubrics[header] : null
-                                            const displayVal = val === "NR" || !val ? "-" : val
-                                            const isNumber = !isNaN(parseFloat(displayVal))
-                                            return (
-                                                <div
-                                                    key={header}
-                                                    className='flex justify-between items-center py-1.5 border-b border-zinc-800 last:border-0'>
-                                                    <span className='text-xs font-medium text-green-400/80 uppercase'>
-                                                        {header}
-                                                    </span>
-                                                    <span
-                                                        className={`text-sm font-mono font-bold ${
-                                                            isNumber
-                                                                ? "text-gray-300"
-                                                                : "text-zinc-600"
-                                                        }`}>
-                                                        {displayVal}
-                                                    </span>
+                                    {/* DETALLE EXPANDIBLE - SOLO SI HAY RUBRICS */}
+                                    {hasRubrics && (
+                                        <div
+                                            className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                                                expandedCard === index
+                                                    ? "grid-rows-[1fr]"
+                                                    : "grid-rows-[0fr]"
+                                            }`}>
+                                            <div className='overflow-hidden'>
+                                                <div className='border-t border-zinc-700 p-3 bg-zinc-950/50 space-y-2'>
+                                                    {/* SOLO MOSTRAR HEADERS CON VALORES */}
+                                                    {availableHeaders.map((header) => {
+                                                        const val = row.rubrics[header]
+                                                        const displayVal =
+                                                            val === "NR" || !val ? "-" : val
+                                                        const isNumber = !isNaN(
+                                                            parseFloat(displayVal)
+                                                        )
+                                                        return (
+                                                            <div
+                                                                key={header}
+                                                                className='flex justify-between items-center py-1.5 border-b border-zinc-800 last:border-0'>
+                                                                <span className='text-xs font-medium text-green-400/80 uppercase'>
+                                                                    {header}
+                                                                </span>
+                                                                <span
+                                                                    className={`text-sm font-mono font-bold ${
+                                                                        isNumber
+                                                                            ? "text-gray-300"
+                                                                            : "text-zinc-600"
+                                                                    }`}>
+                                                                    {displayVal}
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                    {/* NFA SIEMPRE AL FINAL */}
+                                                    {row.nfa > 0 && (
+                                                        <div className='flex justify-between items-center py-1.5 bg-zinc-900/50 px-2 rounded mt-2'>
+                                                            <span className='text-xs font-medium text-zinc-400 uppercase'>
+                                                                NFA
+                                                            </span>
+                                                            <span className='text-lg font-mono font-black text-green-400'>
+                                                                {parseFloat(row.nfa).toFixed(0)}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )
-                                        })}
-                                        <div className='flex justify-between items-center py-1.5 bg-zinc-900/50 px-2 rounded mt-2'>
-                                            <span className='text-xs font-medium text-zinc-400 uppercase'>
-                                                NFA
-                                            </span>
-                                            <span className='text-lg font-mono font-black text-green-400'>
-                                                {row.nfa > 0 ? parseFloat(row.nfa).toFixed(0) : "0"}
-                                            </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))
+                                    )}
+                                </div>
+                            )
+                        })
                     ) : (
                         <div className='h-full flex flex-col items-center justify-center text-zinc-600 font-sans px-4 py-10'>
                             <div className='bg-zinc-800/50 p-6 rounded-full mb-4 border border-zinc-700/50'>
@@ -286,7 +325,7 @@ export const GradesTable = ({
                                     <td className='p-3 text-center'>
                                         {row.letter ? (
                                             <span
-                                                className={`px-2 py-1 rounded text-[10px] font-bold font-mono inline-block min-w-[30px] ${getLiteralStyle(
+                                                className={`px-2 py-1 rounded text-[10px] font-bold font-mono inline-block min-w-7.5 ${getLiteralStyle(
                                                     row.letter
                                                 )}`}>
                                                 {row.letter}

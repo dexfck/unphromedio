@@ -29,10 +29,8 @@ function Login() {
 
     return (
         <div className='min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 font-sans selection:bg-green-500/30'>
-            {/* Logo / Título Principal (MODIFICADO) */}
             <div className='mb-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-700'>
-                {/* Se eliminó el contenedor tipo botón (bg-green-900/20, border, etc.) */}
-                <h1 className='text-3xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-sans mb-3 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'>
+                <h1 className='text-3xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-linear-to-r from-green-400 to-emerald-600 font-sans mb-3 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'>
                     UNPHROMEDIO
                 </h1>
                 <p className='text-zinc-400 text-sm font-medium tracking-wider uppercase'>
@@ -41,8 +39,8 @@ function Login() {
             </div>
 
             {/* Tarjeta de Login */}
-            <div className='w-full max-w-sm bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden'>
-                <div className='absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none'></div>
+            <div className='w-full max-w-sm bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-lg p-8 shadow-2xl relative overflow-hidden'>
+                <div className='absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent pointer-events-none'></div>
                 <div className='relative z-10 flex flex-col gap-6'>
                     <div className='text-center'>
                         <h2 className='text-xl font-bold text-white font-sans'>Iniciar Sesión</h2>
@@ -53,7 +51,7 @@ function Login() {
 
                     <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                         {errorMsg && (
-                            <div className='p-3 bg-red-900/20 border border-red-500/30 rounded-xl text-red-400 text-xs text-center font-medium animate-in fade-in slide-in-from-top-2'>
+                            <div className='p-3 bg-red-900/20 border border-red-500/30 roundex-lg text-red-400 text-xs text-center font-medium animate-in fade-in slide-in-from-top-2'>
                                 {errorMsg}
                             </div>
                         )}
@@ -66,7 +64,7 @@ function Login() {
                                 type='text'
                                 name='username'
                                 placeholder='Ej: ab12-3456'
-                                className='w-full bg-zinc-950/50 border border-zinc-800 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-zinc-700 font-mono'
+                                className='w-full bg-zinc-950/50 border border-zinc-800 text-white text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-zinc-700 font-mono'
                                 value={credentials.username}
                                 onChange={handleChange}
                             />
@@ -80,7 +78,7 @@ function Login() {
                                 type='password'
                                 name='password'
                                 placeholder='••••••••'
-                                className='w-full bg-zinc-950/50 border border-zinc-800 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-zinc-700'
+                                className='w-full bg-zinc-950/50 border border-zinc-800 text-white text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-zinc-700'
                                 value={credentials.password}
                                 onChange={handleChange}
                             />
@@ -89,11 +87,11 @@ function Login() {
                         <button
                             type='submit'
                             disabled={loading}
-                            className={`mt-4 w-full py-3.5 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-95
+                            className={`mt-4 w-full py-3.5 rounded-lg font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-95
                                 ${
                                     loading
                                         ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-                                        : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-green-900/30 hover:shadow-green-900/50"
+                                        : "bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-green-900/30 hover:shadow-green-900/50"
                                 }
                             `}>
                             {loading ? (
@@ -126,7 +124,6 @@ function Login() {
                     {/* Disclaimer */}
                     <div className='pt-4 border-t border-zinc-800/50 text-center'>
                         <p className='text-[10px] text-zinc-500 leading-tight flex items-center justify-center gap-2'>
-                            
                             <span>
                                 Al iniciar sesión, tus datos no estan siendo comprometidos, ya que
                                 la app está directamente conectada con el sistema de la UNPHU.

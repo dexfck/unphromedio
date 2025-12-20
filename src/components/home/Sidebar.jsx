@@ -1,6 +1,7 @@
 import React from "react"
 import {Icons} from "../ui/Icons"
 import {HelpCircle} from "lucide-react"
+import Button from "../ui/Button.jsx"
 
 export const Sidebar = ({selectedPeriod, periodInfo, setActiveModal, setInfoModalOpen}) => {
     // LÓGICA DE ESTILOS SEGÚN ESTADO
@@ -21,7 +22,7 @@ export const Sidebar = ({selectedPeriod, periodInfo, setActiveModal, setInfoModa
     return (
         <aside className='row-start-2 flex flex-col gap-4 overflow-hidden'>
             {/* TARJETA SUPERIOR */}
-            <div className='bg-gradient-to-br from-green-600 to-emerald-900 rounded-2xl p-6 shadow-lg border border-green-500 relative overflow-hidden flex flex-col justify-center min-h-[180px] shrink-0'>
+            <div className='bg-linear-to-br from-green-600 to-emerald-900 rounded-lg p-6 shadow-lg border border-green-500 relative overflow-hidden flex flex-col justify-center min-h-45 shrink-0'>
                 <div className='absolute top-0 right-0 w-40 h-40 bg-green-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none'></div>
                 <div className='relative z-10 flex flex-col h-full justify-between'>
                     <div>
@@ -60,69 +61,69 @@ export const Sidebar = ({selectedPeriod, periodInfo, setActiveModal, setInfoModa
             </div>
 
             {/* MENÚ DE NAVEGACIÓN */}
-            <div className='bg-zinc-800 rounded-2xl flex-1 min-h-0 border border-zinc-700 p-4 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 hover:scrollbar-thumb-zinc-600'>
+            <div className='bg-zinc-800 rounded-lg flex-1 min-h-0 border border-zinc-700 p-4 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 hover:scrollbar-thumb-zinc-600'>
                 <h3 className='text-zinc-500 text-xs font-bold uppercase mb-4 text-center font-sans shrink-0'>
                     Menú Rápido
                 </h3>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("student")}
-                    className='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-xl mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-lg mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <Icons.User className='w-5 h-5 text-zinc-500 group-hover:text-green-400' />
                     <span className='text-gray-300 group-hover:text-white font-sans flex-1'>
                         Info. Estudiante
                     </span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("pensum")}
-                    className='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-xl mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-lg mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <Icons.Book className='w-5 h-5 text-zinc-500 group-hover:text-green-400' />
                     <span className='text-gray-300 group-hover:text-white font-sans flex-1'>
                         Ver Pensum Completo
                     </span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("details")}
-                    className='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-xl mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-lg mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <Icons.Info className='w-5 h-5 text-zinc-500 group-hover:text-green-400' />
                     <span className='text-gray-300 group-hover:text-white font-sans flex-1'>
                         Detalles del Periodo
                     </span>
-                </button>
+                </Button>
 
                 <div className='my-2 border-t border-zinc-700/50 shrink-0'></div>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("projection")}
-                    className='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-xl mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-lg mb-3 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <Icons.Calculator className='w-5 h-5 text-zinc-500 group-hover:text-green-400' />
                     <span className='text-gray-300 group-hover:text-white font-sans flex-1'>
                         Proyección de Índice
                     </span>
-                </button>
+                </Button>
 
                 <div className='mt-auto shrink-0'></div>
                 <div className='my-2 border-t border-zinc-700/50 shrink-0'></div>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("info")}
-                    className='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-xl mb-2 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-zinc-700/30 hover:bg-zinc-700 hover:border-green-500/50 border border-transparent rounded-lg mb-2 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <HelpCircle className='w-5 h-5 text-zinc-500 group-hover:text-green-400' />
                     <span className='text-gray-300 group-hover:text-white font-sans flex-1'>
                         Más Información
                     </span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                     onClick={() => setActiveModal("logout")}
-                    className='w-full py-3 px-4 bg-red-900/10 hover:bg-red-900/30 hover:border-red-500/30 border border-transparent rounded-xl mb-1 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
+                    classText='w-full py-3 px-4 bg-red-900/10 hover:bg-red-900/30 hover:border-red-500/30 border border-transparent rounded-lg mb-1 text-sm font-medium transition-all text-left flex items-center gap-3 group cursor-pointer shrink-0'>
                     <Icons.Logout className='w-5 h-5 text-red-500/70 group-hover:text-red-400' />
                     <span className='text-red-300/80 group-hover:text-red-200 font-sans flex-1'>
                         Cerrar Sesión
                     </span>
-                </button>
+                </Button>
             </div>
         </aside>
     )
