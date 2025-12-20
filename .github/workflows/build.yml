@@ -1,4 +1,4 @@
-name: Web to Android APK v2
+name: Web to Android APK v3 (Node 22 Fix)
 
 on:
     push:
@@ -14,18 +14,18 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            # 2. Configurar Java 17 (Necesario para Android)
+            # 2. Configurar Java 17 (Estándar para Android)
             - name: Setup Java
               uses: actions/setup-java@v4
               with:
                   distribution: "temurin"
                   java-version: "17"
 
-            # 3. Configurar Node.js (Para React y Capacitor)
+            # 3. Configurar Node.js 22 (CORRECCIÓN: Requerido por Capacitor nuevo)
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20"
+                  node-version: "22"
 
             # 4. Instalar dependencias y Capacitor
             - name: Install Dependencies
@@ -37,8 +37,7 @@ jobs:
             - name: Build Web App
               run: npm run build
 
-            # 6. Inicializar Capacitor y Crear Plataforma Android (¡La Magia!)
-            # Nota: Cambia 'com.unphromedio.app' por el ID que quieras
+            # 6. Inicializar Capacitor y Crear Plataforma Android
             - name: Initialize Capacitor Android
               run: |
                   npx cap init UnphroMedio com.unphromedio.app --web-dir=dist --no-question
@@ -52,7 +51,6 @@ jobs:
                   echo $ENCODED_STRING | base64 --decode > android/app/release-key.jks
 
             # 8. Compilar APK Firmado
-            # Entramos a la carpeta 'android' que acabamos de crear para ejecutar Gradle
             - name: Build Signed APK
               env:
                   KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
