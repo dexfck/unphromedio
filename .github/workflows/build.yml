@@ -1,4 +1,4 @@
-name: Web to Android APK v4 (Final Fix)
+name: Web to Android APK v5 (Java 21 Fix)
 
 on:
     push:
@@ -14,12 +14,12 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            # 2. Configurar Java 17
+            # 2. Configurar Java 21 (CORRECCIÓN: Requerido por el nuevo template de Android)
             - name: Setup Java
               uses: actions/setup-java@v4
               with:
                   distribution: "temurin"
-                  java-version: "17"
+                  java-version: "21"
 
             # 3. Configurar Node.js 22
             - name: Setup Node.js
@@ -38,7 +38,6 @@ jobs:
               run: npm run build
 
             # 6. Inicializar Capacitor y Crear Plataforma Android
-            # CORRECCIÓN: Eliminado flag '--no-question' que causaba el error
             - name: Initialize Capacitor Android
               run: |
                   npx cap init UnphroMedio com.unphromedio.app --web-dir=dist
