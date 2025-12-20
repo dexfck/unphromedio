@@ -1,4 +1,4 @@
-name: Web to Android APK v3 (Node 22 Fix)
+name: Web to Android APK v4 (Final Fix)
 
 on:
     push:
@@ -14,36 +14,37 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            # 2. Configurar Java 17 (Estándar para Android)
+            # 2. Configurar Java 17
             - name: Setup Java
               uses: actions/setup-java@v4
               with:
                   distribution: "temurin"
                   java-version: "17"
 
-            # 3. Configurar Node.js 22 (CORRECCIÓN: Requerido por Capacitor nuevo)
+            # 3. Configurar Node.js 22
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: "22"
 
-            # 4. Instalar dependencias y Capacitor
+            # 4. Instalar dependencias
             - name: Install Dependencies
               run: |
                   npm install
                   npm install @capacitor/core @capacitor/cli @capacitor/android
 
-            # 5. Compilar tu Web (Crea la carpeta dist)
+            # 5. Compilar tu Web
             - name: Build Web App
               run: npm run build
 
             # 6. Inicializar Capacitor y Crear Plataforma Android
+            # CORRECCIÓN: Eliminado flag '--no-question' que causaba el error
             - name: Initialize Capacitor Android
               run: |
-                  npx cap init UnphroMedio com.unphromedio.app --web-dir=dist --no-question
+                  npx cap init UnphroMedio com.unphromedio.app --web-dir=dist
                   npx cap add android
 
-            # 7. Recuperar tu Keystore (Firma) desde Secretos
+            # 7. Recuperar Keystore
             - name: Decode Keystore
               env:
                   ENCODED_STRING: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -65,7 +66,7 @@ jobs:
                     -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
                     -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
-            # 9. Subir el APK resultante
+            # 9. Subir el APK
             - name: Upload APK
               uses: actions/upload-artifact@v4
               with:
