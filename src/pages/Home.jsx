@@ -11,6 +11,7 @@ import {Header} from "../components/home/Header"
 import {Sidebar} from "../components/home/Sidebar"
 import {GradesTable} from "../components/home/GradesTable"
 import {HomeModals} from "../components/home/HomeModals"
+import {MobileMenu} from "../components/home/MobileMenu"
 
 function Home() {
     const navigate = useNavigate()
@@ -24,13 +25,14 @@ function Home() {
     const [headers, setHeaders] = useState([])
 
     // Estados de Control
-    // CORRECCIÓN 1: Iniciar siempre en Periodo 1 por defecto para ver el inicio de la carrera
     const [selectedPeriod, setSelectedPeriod] = useState(1)
-
     const [periodInfo, setPeriodInfo] = useState({credits: 0, average: "0.0", status: "Pendiente"})
     const [isFullScreenLoading, setIsFullScreenLoading] = useState(true)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [activeModal, setActiveModal] = useState(null)
+
+    // Estados para móvil
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     // 1. CARGA INICIAL
     useEffect(() => {
@@ -57,8 +59,6 @@ function Home() {
         const initApp = async () => {
             try {
                 await new Promise((r) => setTimeout(r, 500))
-
-                // Cargar Datos Básicos y Pensum
                 const [userData, selectionData] = await Promise.all([getUserInfo(), getSelection()])
 
                 if (userData?.data) {
@@ -79,24 +79,14 @@ function Home() {
         initApp()
     }, [navigate])
 
-    // 2. EFECTO AL CAMBIAR PERIODO (Cargar Notas)
+    // 2. EFECTO AL CAMBIAR PERIODO
     useEffect(() => {
         const fetchGrades = async () => {
             setIsRefreshing(true)
             try {
-                // NOTA: Aquí hay un dilema. 'semester-grades' pide un AÑO y un ID de PERIODO ACADÉMICO (ej: 3 para Sept-Dic).
-                // Si 'selectedPeriod' es el Nivel del Pensum (1, 2, 3...), no coincide con el periodo académico.
-                // Para ver notas históricas (ej: Periodo 1 que cursaste el año pasado), necesitaríamos otro endpoint o lógica.
-
-                // Por ahora, intentaremos cargar las notas generales disponibles.
-                // Si la API semester-grades solo devuelve lo actual, solo veremos notas si coinciden.
-
-                // Usamos el periodo académico actual guardado (ej: 3) para ver si hay notas recientes
                 const academicPeriod = localStorage.getItem("auth_current_period") || "3"
                 const gradesRes = await getSemesterGrades(academicPeriod)
-
                 const {processedData, dynamicHeaders} = processGrades(gradesRes?.data || [])
-
                 setCurrentGrades(processedData)
                 setHeaders(dynamicHeaders)
             } catch (error) {
@@ -110,9 +100,9 @@ function Home() {
         if (!isFullScreenLoading) {
             fetchGrades()
         }
-    }, [selectedPeriod, isFullScreenLoading]) // Se ejecuta al cambiar periodo para refrescar vista
+    }, [selectedPeriod, isFullScreenLoading])
 
-    // 3. FUSIÓN DE DATOS (Pensum + Notas + Cálculo de Índice y ESTADO)
+    // 3. FUSIÓN DE DATOS
     useEffect(() => {
         if (!pensumData) return
 
@@ -151,7 +141,6 @@ function Home() {
 
         setDisplayedGrades(mergedData)
 
-        // --- CÁLCULO DEL PROMEDIO (GPA) ---
         let totalQualityPoints = 0
         let totalAttemptedCredits = 0
 
@@ -195,18 +184,15 @@ function Home() {
         }
 
         const periodTotalCredits = mergedData.reduce((sum, item) => sum + (item.credits || 0), 0)
-
-        // --- NUEVA LÓGICA DE ESTADO (Cursando vs Finalizado vs No Cursado) ---
-        const hasGrades = mergedData.some((g) => g.hasGrade) // ¿Tiene alguna materia inscrita/con nota?
-        const hasEC = mergedData.some((g) => g.letter === "EC") // ¿Hay alguna materia "En Curso"?
+        const hasGrades = mergedData.some((g) => g.hasGrade)
+        const hasEC = mergedData.some((g) => g.letter === "EC")
 
         let status = "No Cursado"
-
         if (hasGrades) {
             if (hasEC) {
-                status = "Cursando" // Si tiene notas y al menos una es EC -> Cursando
+                status = "Cursando"
             } else {
-                status = "Finalizado" // Si tiene notas y NINGUNA es EC -> Finalizado
+                status = "Finalizado"
             }
         }
 
@@ -214,6 +200,7 @@ function Home() {
             credits: periodTotalCredits,
             average: calculatedGPA.toFixed(1),
             status,
+            period: selectedPeriod,
         })
     }, [selectedPeriod, pensumData, currentGrades])
 
@@ -234,8 +221,15 @@ function Home() {
     }
 
     return (
-        <div className='h-screen bg-zinc-900 text-white p-4 font-sans selection:bg-green-500/30 relative select-none overflow-hidden'>
+        <div className='h-screen bg-zinc-900 text-white font-sans selection:bg-green-500/30 relative select-none overflow-hidden'>
             <FullScreenLoader isLoading={isFullScreenLoading} />
+
+            <MobileMenu
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+                periodInfo={periodInfo}
+                setActiveModal={setActiveModal}
+            />
 
             <HomeModals
                 activeModal={activeModal}
@@ -250,26 +244,107 @@ function Home() {
                 onLogout={handleLogout}
             />
 
-            <div className='max-w-[1600px] mx-auto h-full grid grid-cols-[300px_1fr] grid-rows-[80px_1fr] gap-4'>
-                <Header
-                    user={user}
-                    shortName={shortName}
-                    selectedPeriod={selectedPeriod}
-                    setSelectedPeriod={setSelectedPeriod}
-                />
-                <Sidebar
-                    selectedPeriod={selectedPeriod}
-                    periodInfo={periodInfo}
-                    setActiveModal={setActiveModal}
-                />
-                <GradesTable
-                    isRefreshing={isRefreshing}
-                    handleRefresh={handleRefresh}
-                    displayedGrades={displayedGrades} // Aquí pasamos los datos fusionados
-                    headers={headers}
-                    selectedPeriod={selectedPeriod}
-                    status={periodInfo.status} // Pasamos el estado para decidir qué mostrar
-                />
+            <div className='max-w-[1600px] mx-auto h-full'>
+                {/* MOBILE LAYOUT con espaciado correcto */}
+                <div className='lg:hidden flex flex-col h-full p-3 pt-safe gap-3'>
+                    <Header
+                        user={user}
+                        shortName={shortName}
+                        selectedPeriod={selectedPeriod}
+                        setSelectedPeriod={setSelectedPeriod}
+                        onMenuClick={() => setIsMobileMenuOpen(true)}
+                        isMobile={true}
+                    />
+
+                    {/* Contenedor con padding bottom para el summary card */}
+                    <div className='flex-1 overflow-hidden pb-[165px]'>
+                        <GradesTable
+                            isRefreshing={isRefreshing}
+                            handleRefresh={handleRefresh}
+                            displayedGrades={displayedGrades}
+                            headers={headers}
+                            selectedPeriod={selectedPeriod}
+                            status={periodInfo.status}
+                            isMobile={true}
+                        />
+                    </div>
+
+                    {/* SUMMARY CARD FIJO EN LA PARTE INFERIOR */}
+                    <div className='fixed bottom-0 left-0 right-0 p-3 pb-safe bg-zinc-900/95 backdrop-blur-md border-t border-zinc-700 z-40 lg:hidden'>
+                        <div className='bg-gradient-to-br from-green-600 to-emerald-900 rounded-2xl p-4 shadow-lg border border-green-500 relative overflow-hidden'>
+                            <div className='absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none' />
+                            <div className='relative z-10'>
+                                <div className='flex justify-between items-start mb-2'>
+                                    <div>
+                                        <p className='text-green-200 text-[10px] font-bold uppercase tracking-wider'>
+                                            Periodo {selectedPeriod}
+                                        </p>
+                                        <div
+                                            className={`inline-flex items-center px-2 py-0.5 rounded-full border font-bold uppercase text-[9px] mt-1 ${
+                                                periodInfo.status === "Cursando"
+                                                    ? "bg-green-500 text-zinc-900 border-green-400"
+                                                    : periodInfo.status === "Finalizado"
+                                                    ? "bg-blue-500 text-white border-blue-400"
+                                                    : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                                            }`}>
+                                            <div
+                                                className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                                                    periodInfo.status === "Cursando"
+                                                        ? "bg-zinc-900 animate-pulse"
+                                                        : periodInfo.status === "Finalizado"
+                                                        ? "bg-white"
+                                                        : "bg-zinc-600"
+                                                }`}
+                                            />
+                                            {periodInfo.status}
+                                        </div>
+                                    </div>
+                                    <div className='text-right'>
+                                        <span className='block text-[9px] text-green-300 uppercase font-bold tracking-wider'>
+                                            Promedio
+                                        </span>
+                                        <span className='text-3xl font-black text-white font-mono'>
+                                            {periodInfo.average}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className='flex justify-between items-center mt-2 pt-2 border-t border-green-400/20'>
+                                    <span className='text-green-200 text-xs font-medium'>
+                                        Total Créditos
+                                    </span>
+                                    <span className='text-2xl font-black text-white font-mono'>
+                                        {periodInfo.credits}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* DESKTOP LAYOUT */}
+                <div className='hidden lg:grid h-screen grid-cols-[300px_1fr] grid-rows-[80px_1fr] gap-4 p-4'>
+                    <Header
+                        user={user}
+                        shortName={shortName}
+                        selectedPeriod={selectedPeriod}
+                        setSelectedPeriod={setSelectedPeriod}
+                        isMobile={false}
+                    />
+                    <Sidebar
+                        selectedPeriod={selectedPeriod}
+                        periodInfo={periodInfo}
+                        setActiveModal={setActiveModal}
+                    />
+                    <GradesTable
+                        isRefreshing={isRefreshing}
+                        handleRefresh={handleRefresh}
+                        displayedGrades={displayedGrades}
+                        headers={headers}
+                        selectedPeriod={selectedPeriod}
+                        status={periodInfo.status}
+                        isMobile={false}
+                    />
+                </div>
             </div>
         </div>
     )

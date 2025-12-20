@@ -1,5 +1,6 @@
-import React from "react"
+import React, {useState} from "react"
 import {Icons} from "../ui/Icons"
+import {ChevronDown} from "lucide-react"
 
 export const GradesTable = ({
     isRefreshing,
@@ -8,7 +9,10 @@ export const GradesTable = ({
     headers,
     selectedPeriod,
     status,
+    isMobile,
 }) => {
+    const [expandedCard, setExpandedCard] = useState(null)
+
     const getLiteralStyle = (letter) => {
         const l = letter?.toUpperCase()
         if (l === "EC") return "bg-zinc-700/50 text-zinc-400 border border-zinc-600"
@@ -22,11 +26,151 @@ export const GradesTable = ({
 
     const hasActiveSubjects = displayedGrades.some((g) => g.hasGrade)
 
+    // VERSIÓN MÓVIL CON CARDS
+    if (isMobile) {
+        return (
+            <main className='bg-zinc-800 rounded-2xl border border-zinc-700 overflow-hidden flex flex-col shadow-2xl relative z-0 h-full'>
+                <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600'></div>
+
+                {/* HEADER */}
+                <div className='p-3 bg-zinc-800/90 backdrop-blur border-b border-zinc-700 flex justify-between items-center z-20 relative shrink-0'>
+                    <h2 className='text-base font-bold text-gray-200 font-sans'>Calificaciones</h2>
+                    <button
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                        className={`p-2 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-zinc-400 hover:text-green-400 transition-all ${
+                            isRefreshing ? "opacity-50 animate-spin" : ""
+                        }`}>
+                        <Icons.Refresh className='w-4 h-4' />
+                    </button>
+                </div>
+
+                {/* LOADER */}
+                {isRefreshing && (
+                    <div className='absolute inset-0 z-50 flex items-center justify-center bg-zinc-900/60 backdrop-blur-[2px]'>
+                        <div className='flex items-center gap-3 text-green-400 bg-zinc-950 px-6 py-3 rounded-full border border-zinc-700 shadow-2xl'>
+                            <div className='animate-spin rounded-full h-5 w-5 border-2 border-green-500 border-t-transparent'></div>
+                            <span className='text-sm font-bold font-sans tracking-wide'>
+                                Sincronizando...
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* CONTENIDO - CARDS EXPANDIBLES */}
+                <div className='flex-1 overflow-y-auto p-2 space-y-2'>
+                    {hasActiveSubjects ? (
+                        displayedGrades.map((row, index) => (
+                            <div
+                                key={index}
+                                className='bg-zinc-900/80 border border-zinc-700 rounded-xl overflow-hidden'>
+                                {/* HEADER DEL CARD (SIEMPRE VISIBLE) */}
+                                <button
+                                    onClick={() =>
+                                        setExpandedCard(expandedCard === index ? null : index)
+                                    }
+                                    className='w-full p-3 flex items-center justify-between hover:bg-zinc-700/30 transition-colors'>
+                                    <div className='flex items-center gap-3 flex-1 min-w-0'>
+                                        <div className='shrink-0'>
+                                            {row.letter ? (
+                                                <span
+                                                    className={`px-2 py-1 rounded text-xs font-bold font-mono inline-block min-w-[32px] text-center ${getLiteralStyle(
+                                                        row.letter
+                                                    )}`}>
+                                                    {row.letter}
+                                                </span>
+                                            ) : (
+                                                <span className='px-2 py-1 rounded text-xs font-mono text-zinc-700 bg-zinc-800 border border-zinc-700'>
+                                                    -
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className='flex-1 min-w-0 text-left'>
+                                            <p className='text-sm font-bold text-white truncate pr-2'>
+                                                {row.subject}
+                                            </p>
+                                            <p className='text-[10px] text-zinc-500 font-mono'>
+                                                {row.code} · {row.credits} Cr
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className='flex items-center gap-2 shrink-0'>
+                                        {row.nfa > 0 && (
+                                            <span className='text-xs font-mono font-bold text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-500/30'>
+                                                {parseFloat(row.nfa).toFixed(0)}
+                                            </span>
+                                        )}
+                                        <ChevronDown
+                                            className={`w-5 h-5 text-zinc-400 transition-transform ${
+                                                expandedCard === index ? "rotate-180" : ""
+                                            }`}
+                                        />
+                                    </div>
+                                </button>
+
+                                {/* DETALLE EXPANDIBLE */}
+                                {expandedCard === index && (
+                                    <div className='border-t border-zinc-700 p-3 bg-zinc-950/50 space-y-2 animate-in slide-in-from-top-2 duration-200'>
+                                        {headers.map((header) => {
+                                            const val = row.rubrics ? row.rubrics[header] : null
+                                            const displayVal = val === "NR" || !val ? "-" : val
+                                            const isNumber = !isNaN(parseFloat(displayVal))
+                                            return (
+                                                <div
+                                                    key={header}
+                                                    className='flex justify-between items-center py-1.5 border-b border-zinc-800 last:border-0'>
+                                                    <span className='text-xs font-medium text-green-400/80 uppercase'>
+                                                        {header}
+                                                    </span>
+                                                    <span
+                                                        className={`text-sm font-mono font-bold ${
+                                                            isNumber
+                                                                ? "text-gray-300"
+                                                                : "text-zinc-600"
+                                                        }`}>
+                                                        {displayVal}
+                                                    </span>
+                                                </div>
+                                            )
+                                        })}
+                                        <div className='flex justify-between items-center py-1.5 bg-zinc-900/50 px-2 rounded mt-2'>
+                                            <span className='text-xs font-medium text-zinc-400 uppercase'>
+                                                NFA
+                                            </span>
+                                            <span className='text-lg font-mono font-black text-green-400'>
+                                                {row.nfa > 0 ? parseFloat(row.nfa).toFixed(0) : "0"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className='h-full flex flex-col items-center justify-center text-zinc-600 font-sans px-4 py-10'>
+                            <div className='bg-zinc-800/50 p-6 rounded-full mb-4 border border-zinc-700/50'>
+                                <Icons.Book className='w-10 h-10 opacity-50' />
+                            </div>
+                            <h3 className='text-lg font-bold text-zinc-400 mb-2 text-center'>
+                                Periodo No Cursado
+                            </h3>
+                            <p className='text-xs max-w-xs text-center leading-relaxed'>
+                                No se encontraron registros de calificaciones para el{" "}
+                                <span className='text-green-500 font-bold'>
+                                    Periodo {selectedPeriod}
+                                </span>
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </main>
+        )
+    }
+
+    // VERSIÓN DESKTOP (ORIGINAL)
     return (
-        <main className='row-start-2 bg-zinc-800 rounded-2xl border border-zinc-700 p-1 overflow-hidden flex flex-col shadow-2xl relative z-0 h-full'>
+        <main className='bg-zinc-800 rounded-2xl border border-zinc-700 p-1 overflow-hidden flex flex-col shadow-2xl relative z-0 h-full row-start-2'>
             <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600'></div>
 
-            {/* HEADER */}
             <div className='p-4 bg-zinc-800/90 backdrop-blur border-b border-zinc-700 flex justify-between items-center z-20 relative shrink-0'>
                 <div className='flex items-center gap-3'>
                     <h2 className='text-lg font-bold text-gray-200 font-sans'>
@@ -64,7 +208,6 @@ export const GradesTable = ({
                 )}
             </div>
 
-            {/* LOADER */}
             {isRefreshing && (
                 <div className='absolute inset-0 z-50 flex items-center justify-center bg-zinc-900/60 backdrop-blur-[2px]'>
                     <div className='flex items-center gap-3 text-green-400 bg-zinc-950 px-6 py-3 rounded-full border border-zinc-700 shadow-2xl transform scale-110'>
@@ -76,7 +219,6 @@ export const GradesTable = ({
                 </div>
             )}
 
-            {/* CONTENIDO PRINCIPAL */}
             <div className='flex-1 min-h-0 overflow-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 hover:scrollbar-thumb-zinc-600 p-2 relative z-0'>
                 {hasActiveSubjects ? (
                     <table className='w-full text-left border-collapse relative'>
@@ -95,7 +237,6 @@ export const GradesTable = ({
                                         {header}
                                     </th>
                                 ))}
-                                {/* CAMBIO DE NF A NFA */}
                                 <th
                                     className='p-3 font-medium border-b border-zinc-700 text-center text-zinc-500'
                                     title='Nota Final Aproximada'>
@@ -117,8 +258,6 @@ export const GradesTable = ({
                                     <td className='p-3 text-center text-zinc-500 text-xs font-mono'>
                                         {row.credits}
                                     </td>
-
-                                    {/* Celdas dinámicas */}
                                     {headers.map((header) => {
                                         const val = row.rubrics ? row.rubrics[header] : null
                                         const displayVal = val === "NR" || !val ? "-" : val
@@ -134,8 +273,6 @@ export const GradesTable = ({
                                             </td>
                                         )
                                     })}
-
-                                    {/* COLUMNA NFA CON COLOR VERDE SI > 0 */}
                                     <td className='p-3 text-center'>
                                         <span
                                             className={`text-xs font-mono font-bold ${
@@ -146,8 +283,6 @@ export const GradesTable = ({
                                             {row.nfa > 0 ? parseFloat(row.nfa).toFixed(0) : "0"}
                                         </span>
                                     </td>
-
-                                    {/* Literal */}
                                     <td className='p-3 text-center'>
                                         {row.letter ? (
                                             <span
@@ -174,8 +309,7 @@ export const GradesTable = ({
                             No se encontraron registros de calificaciones para el{" "}
                             <span className='text-green-500 font-bold'>
                                 Periodo {selectedPeriod}
-                            </span>{" "}
-                            en este momento.
+                            </span>
                         </p>
                     </div>
                 )}

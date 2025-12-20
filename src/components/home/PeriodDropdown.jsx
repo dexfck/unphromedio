@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from "react"
 import {Icons} from "../ui/Icons"
 
-export const PeriodDropdown = ({selected, options, onChange}) => {
+export const PeriodDropdown = ({selected, options, onChange, w}) => {
     const [isOpen, setIsOpen] = useState(false)
     const dropdownRef = useRef(null)
 
@@ -16,12 +16,12 @@ export const PeriodDropdown = ({selected, options, onChange}) => {
     }, [])
 
     return (
-        <div className='relative w-64 z-[60]' ref={dropdownRef}>
+        <div className={`relative ${w ? w : 'w-64'} z-60`} ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full bg-zinc-900 border ${
                     isOpen ? "border-green-500" : "border-zinc-700"
-                } text-white py-2.5 px-4 rounded-xl flex items-center justify-between font-bold font-sans transition-all hover:border-green-500/50 cursor-pointer`}>
+                } text-white py-2 px-4 rounded-lg flex items-center justify-between font-bold font-sans transition-all hover:border-green-500/50 cursor-pointer`}>
                 <span>Periodo {selected}</span>
                 <Icons.ChevronDown
                     className={`w-4 h-4 text-green-500 transition-transform ${

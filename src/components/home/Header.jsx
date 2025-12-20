@@ -1,10 +1,40 @@
 import React from "react"
 import {PeriodDropdown} from "./PeriodDropdown"
+import {Menu} from "lucide-react"
 
-export const Header = ({user, shortName, selectedPeriod, setSelectedPeriod}) => {
+export const Header = ({
+    user,
+    shortName,
+    selectedPeriod,
+    setSelectedPeriod,
+    onMenuClick,
+    isMobile,
+}) => {
+    if (isMobile) {
+        // VERSIÓN MÓVIL con dropdown centrado
+        return (
+            <header className='bg-zinc-800 rounded-2xl flex items-center justify-between px-4 py-3 border border-zinc-700 shadow-xl relative shrink-0'>
+                <button
+                    onClick={onMenuClick}
+                    className='p-2 bg-zinc-900 border border-zinc-700  rounded-lg z-10'>
+                    <Menu className='w-6 h-6  text-green-500' />
+                </button>
+
+                {/* Dropdown centrado con z-index alto */}
+                <div className='z-60 '>
+                    <PeriodDropdown
+                        selected={selectedPeriod}
+                        options={Array.from({length: 12}, (_, i) => i + 1)}
+                        onChange={setSelectedPeriod}
+                    />
+                </div>
+            </header>
+        )
+    }
+
+    // VERSIÓN DESKTOP
     return (
         <header className='col-span-2 bg-zinc-800 rounded-2xl flex items-center justify-between px-8 border border-zinc-700 shadow-xl z-50 relative'>
-            {/* Título limpio sin estilos de botón */}
             <div>
                 <h1 className='text-2xl font-black tracking-widest text-green-500 font-sans select-none'>
                     UNPHROMEDIO

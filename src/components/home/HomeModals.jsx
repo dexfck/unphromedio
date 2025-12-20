@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback, useMemo} from "react"
 import {Modal} from "../ui/Modal"
 import {Icons} from "../ui/Icons"
 import {PeriodDropdown} from "./PeriodDropdown"
+import {Github, Target, Eye, Lightbulb} from "lucide-react"
 
 const ALL_HEADERS = ["RU", "TP", "PP1", "PP2", "EF", "Modulo1", "Modulo2", "Modulo3", "Modulo4"]
 
@@ -21,7 +22,6 @@ export const HomeModals = ({
     const [simulatedSubjects, setSimulatedSubjects] = useState([])
     const [projectedIndex, setProjectedIndex] = useState(0)
 
-    // --- HELPER: NORMALIZACIÓN AGRESIVA ---
     const normalize = useCallback((str) => {
         if (!str) return ""
         return str
@@ -32,31 +32,25 @@ export const HomeModals = ({
             .replace(/[^a-z0-9]/g, "")
     }, [])
 
-    // --- HELPER: VERIFICAR ESTADO ---
     const checkSubjectStatus = useCallback(
         (pensumSubject) => {
             if (!allGrades) return null
-
             return allGrades.find((grade) => {
                 const gCode = normalize(grade.fullGroupCode?.split("-").slice(0, 2).join("-"))
                 const pCode = normalize(pensumSubject.code || pensumSubject.codeSubject)
                 const gName = normalize(grade.course || grade.subject)
                 const pName = normalize(pensumSubject.course || pensumSubject.subject)
-
                 return (gCode && pCode && gCode === pCode) || gName === pName
             })
         },
         [allGrades, normalize]
     )
 
-    // --- ESTADÍSTICAS ---
     const pensumStats = useMemo(() => {
         if (!pensumData || !allGrades) return {total: 0, finished: 0, pending: 0}
-
         let total = 0
         let finished = 0
         const passingGrades = ["A", "B", "C", "D", "CV", "E"]
-
         Object.values(pensumData).forEach((periodSubjects) => {
             periodSubjects.forEach((sub) => {
                 total++
@@ -70,21 +64,17 @@ export const HomeModals = ({
                 }
             })
         })
-
         return {total, finished, pending: total - finished}
     }, [pensumData, allGrades, checkSubjectStatus])
 
-    // --- CALCULADORA ---
     const calculateProjection = useCallback((subjects) => {
         let totalPoints = 0
         let totalCredits = 0
-
         subjects.forEach((sub) => {
             const r = sub.rubrics
             const getVal = (k) =>
                 r[k] && r[k] !== "" && !isNaN(parseFloat(r[k])) ? parseFloat(r[k]) : null
             const hasVal = (k) => getVal(k) !== null
-
             let ppSum = 0,
                 ppCount = 0
             if (hasVal("PP1")) {
@@ -96,7 +86,6 @@ export const HomeModals = ({
                 ppCount++
             }
             const promParciales = ppCount > 0 ? ppSum / ppCount : null
-
             let otherSum = 0,
                 otherCount = 0
             Object.keys(r).forEach((key) => {
@@ -105,7 +94,6 @@ export const HomeModals = ({
                     otherCount++
                 }
             })
-
             let num = otherSum,
                 den = otherCount
             if (promParciales !== null) {
@@ -113,9 +101,7 @@ export const HomeModals = ({
                 den++
             }
             const nfa = den > 0 ? num / den : 0
-
             sub.nfa = nfa
-
             let points = 0
             if (nfa > 0) {
                 const score = Math.round(nfa)
@@ -124,12 +110,10 @@ export const HomeModals = ({
                 else if (score >= 70) points = 2
                 else if (score >= 60) points = 1
                 else points = 0
-
                 totalPoints += points * sub.credits
                 totalCredits += sub.credits
             }
         })
-
         const gpa = totalCredits > 0 ? Math.round((totalPoints / totalCredits) * 10) / 10 : 0
         setProjectedIndex(gpa)
     }, [])
@@ -193,9 +177,9 @@ export const HomeModals = ({
                 isOpen={activeModal === "student"}
                 onClose={() => setActiveModal(null)}
                 title='Perfil del Estudiante'>
-                <div className='flex flex-col md:flex-row gap-8 items-start'>
+                <div className='flex flex-col md:flex-row gap-4 md:gap-8 items-start'>
                     <div className='w-full md:w-1/3 flex flex-col items-center'>
-                        <div className='w-32 h-32 rounded-2xl overflow-hidden border-2 border-green-500 mb-4 shadow-lg shadow-green-500/20 bg-zinc-800 relative'>
+                        <div className='w-32 h-32 rounded-2xl overflow-hidden border-2 border-green-500 mb-4 shadow-lg shadow-green-500/20 bg-zinc-800'>
                             {user?.picture ? (
                                 <img
                                     src={user.picture}
@@ -267,9 +251,9 @@ export const HomeModals = ({
                 onClose={() => setActiveModal(null)}
                 title='Plan de Estudio Completo'
                 className='max-w-7xl'>
-                <div className='grid grid-cols-3 gap-4 mb-8'>
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8'>
                     <div className='bg-zinc-900/80 p-5 rounded-2xl text-center border border-zinc-800 shadow-md relative overflow-hidden'>
-                        <p className='text-xs text-zinc-500 uppercase font-black tracking-wider relative z-10 mb-1'>
+                        <p className='text-[10px] sm:text-xs text-zinc-500 uppercase font-black tracking-wider relative z-10 mb-1'>
                             Materias Totales
                         </p>
                         <p className='text-3xl font-black text-white relative z-10'>
@@ -278,7 +262,7 @@ export const HomeModals = ({
                     </div>
                     <div className='bg-zinc-900/80 p-5 rounded-2xl text-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)] relative overflow-hidden'>
                         <div className='absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-50'></div>
-                        <p className='text-xs text-green-400 uppercase font-black tracking-wider relative z-10 mb-1'>
+                        <p className='text-[10px] sm:text-xs text-green-400 uppercase font-black tracking-wider relative z-10 mb-1'>
                             Materias Cursadas
                         </p>
                         <p className='text-3xl font-black text-green-400 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)] relative z-10'>
@@ -286,7 +270,7 @@ export const HomeModals = ({
                         </p>
                     </div>
                     <div className='bg-zinc-900/80 p-5 rounded-2xl text-center border border-zinc-800 shadow-md relative overflow-hidden'>
-                        <p className='text-xs text-zinc-500 uppercase font-black tracking-wider relative z-10 mb-1'>
+                        <p className='text-[10px] sm:text-xs text-zinc-500 uppercase font-black tracking-wider relative z-10 mb-1'>
                             Materias Pendientes
                         </p>
                         <p className='text-3xl font-black text-zinc-300 relative z-10'>
@@ -337,7 +321,6 @@ export const HomeModals = ({
                                             }
 
                                             return (
-                                                // AQUI SE ELIMINARON LOS ESTILOS DE HOVER, SHADOW Y TRANSLATE
                                                 <div
                                                     key={`${period}-${idx}`}
                                                     className='relative bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 overflow-hidden'
@@ -379,14 +362,14 @@ export const HomeModals = ({
                 isOpen={activeModal === "details"}
                 onClose={() => setActiveModal(null)}
                 title={`Detalles del Periodo ${selectedPeriod}`}>
-                <div className='grid grid-cols-3 gap-3 mb-6'>
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 md:mb-6'>
                     <div className='bg-zinc-900/80 p-4 rounded-2xl text-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)] relative overflow-hidden'>
                         <div className='absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-50'></div>
-                        <p className='text-[10px] text-green-400 uppercase font-bold tracking-wider relative z-10'>
+                        <p className='text-[9px] sm:text-[10px] text-green-400 uppercase font-bold tracking-wider relative z-10'>
                             Estado
                         </p>
                         <p
-                            className={`text-xl font-black relative z-10 ${
+                            className={`text-lg sm:text-xl font-black relative z-10 ${
                                 periodInfo.status.includes("Cursando")
                                     ? "text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"
                                     : "text-zinc-400"
@@ -395,18 +378,18 @@ export const HomeModals = ({
                         </p>
                     </div>
                     <div className='bg-zinc-900/80 p-4 rounded-2xl text-center border border-zinc-800 shadow-md relative overflow-hidden'>
-                        <p className='text-[10px] text-zinc-500 uppercase font-bold tracking-wider relative z-10'>
+                        <p className='text-[9px] sm:text-[10px] text-zinc-500 uppercase font-bold tracking-wider relative z-10'>
                             Materias
                         </p>
-                        <p className='text-xl font-black text-white relative z-10'>
+                        <p className='text-lg sm:text-xl font-black text-white relative z-10'>
                             {displayedGrades.length}
                         </p>
                     </div>
                     <div className='bg-zinc-900/80 p-4 rounded-2xl text-center border border-zinc-800 shadow-md relative overflow-hidden'>
-                        <p className='text-[10px] text-zinc-500 uppercase font-bold tracking-wider relative z-10'>
+                        <p className='text-[9px] sm:text-[10px] text-zinc-500 uppercase font-bold tracking-wider relative z-10'>
                             Créditos
                         </p>
-                        <p className='text-xl font-black text-white relative z-10'>
+                        <p className='text-lg sm:text-xl font-black text-white relative z-10'>
                             {periodInfo.credits}
                         </p>
                     </div>
@@ -470,17 +453,15 @@ export const HomeModals = ({
                 title='Calculadora de Índice'
                 className='max-w-[95vw] lg:max-w-7xl'>
                 <div className='flex flex-col h-full'>
-                    <div className='flex flex-wrap gap-6 justify-between items-end mb-8 bg-zinc-950/80 p-6 rounded-3xl border border-zinc-800/80 shadow-xl z-50 relative'>
-                        {/* Gradiente de fondo con rounded-3xl para que no se salga de los bordes */}
+                    <div className='flex flex-col md:flex-row flex-wrap gap-4 md:gap-6 justify-between items-end mb-6 md:mb-8 bg-zinc-950/80 p-4 md:p-6 rounded-3xl border border-zinc-800/80 shadow-xl relative'>
                         <div className='absolute inset-0 bg-gradient-to-r from-green-500/5 via-transparent to-green-500/5 opacity-50 pointer-events-none rounded-3xl'></div>
 
-                        <div className='flex flex-col gap-3 relative z-10'>
+                        <div className='flex flex-col gap-3 relative z-[200] w-full md:w-auto'>
                             <span className='text-xs text-zinc-400 font-black uppercase tracking-widest flex items-center gap-2'>
                                 <Icons.Book className='w-4 h-4 text-green-500' /> Periodo a
                                 Proyectar
                             </span>
-                            {/* El dropdown ahora podrá salirse del contenedor porque ya no hay overflow-hidden */}
-                            <div className='w-56 shadow-lg relative'>
+                            <div className='w-full md:w-56 shadow-lg relative z-[200]'>
                                 <PeriodDropdown
                                     selected={simulatedPeriod}
                                     options={Array.from({length: 12}, (_, i) => i + 1)}
@@ -489,12 +470,12 @@ export const HomeModals = ({
                             </div>
                         </div>
 
-                        <div className='text-right relative z-10 bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 shadow-inner'>
+                        <div className='text-center md:text-right relative z-10 bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 shadow-inner w-full md:w-auto'>
                             <p className='text-xs text-zinc-500 font-black uppercase tracking-widest mb-1'>
                                 Índice Proyectado
                             </p>
                             <p
-                                className={`text-7xl font-black font-mono leading-none transition-all duration-300 ${
+                                className={`text-5xl md:text-7xl font-black font-mono leading-none transition-all duration-300 ${
                                     projectedIndex >= 3
                                         ? "text-green-400 drop-shadow-[0_0_25px_rgba(34,197,94,0.6)]"
                                         : projectedIndex >= 2
@@ -506,7 +487,64 @@ export const HomeModals = ({
                         </div>
                     </div>
 
-                    <div className='flex-1 overflow-auto border border-zinc-800 rounded-3xl bg-zinc-950 shadow-inner relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent'>
+                    {/* VERSIÓN MÓVIL - CARDS */}
+                    <div className='lg:hidden space-y-3 mb-6 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900'>
+                        {simulatedSubjects.map((sub, idx) => (
+                            <div
+                                key={idx}
+                                className='bg-zinc-900 border border-zinc-800 rounded-xl p-4'>
+                                <div className='flex justify-between items-start mb-3'>
+                                    <div className='flex-1 pr-2'>
+                                        <h4 className='text-sm font-bold text-white mb-1 line-clamp-2'>
+                                            {sub.course || sub.subject}
+                                        </h4>
+                                        <p className='text-xs text-zinc-500 font-mono'>
+                                            {sub.credits} Créditos
+                                        </p>
+                                    </div>
+                                    {sub.nfa > 0 && (
+                                        <span
+                                            className={`text-xl font-black font-mono px-3 py-1 rounded-lg shrink-0 ${
+                                                sub.nfa >= 90
+                                                    ? "text-green-400 bg-green-950 shadow-[0_0_10px_rgba(34,197,94,0.2)]"
+                                                    : sub.nfa >= 80
+                                                    ? "text-blue-400 bg-blue-950 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                                    : sub.nfa >= 70
+                                                    ? "text-yellow-400 bg-yellow-950 shadow-[0_0_10px_rgba(234,179,8,0.2)]"
+                                                    : "text-red-400 bg-red-950 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                                            }`}>
+                                            {sub.nfa.toFixed(0)}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className='grid grid-cols-3 gap-2'>
+                                    {ALL_HEADERS.map((field) => (
+                                        <div key={field} className='flex flex-col'>
+                                            <label className='text-[9px] text-green-400 uppercase mb-1 font-bold'>
+                                                {field}
+                                            </label>
+                                            <input
+                                                type='number'
+                                                inputMode='numeric'
+                                                className='w-full bg-zinc-800 border border-zinc-700 rounded-lg text-center text-white font-mono text-sm py-2 focus:outline-none focus:border-green-400 focus:bg-zinc-900 transition-all'
+                                                placeholder='-'
+                                                min='0'
+                                                max='100'
+                                                value={sub.rubrics[field]}
+                                                onChange={(e) =>
+                                                    handleInputChange(idx, field, e.target.value)
+                                                }
+                                                onFocus={(e) => e.target.select()}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* VERSIÓN DESKTOP - TABLA */}
+                    <div className='hidden lg:block flex-1 overflow-auto border border-zinc-800 rounded-3xl bg-zinc-950 shadow-inner relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent'>
                         <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-teal-500/50 z-30'></div>
                         <table className='w-full text-left border-collapse relative z-10'>
                             <thead className='bg-zinc-900/95 backdrop-blur-md text-[10px] text-zinc-400 uppercase font-sans sticky top-0 z-20 shadow-md'>
@@ -586,13 +624,80 @@ export const HomeModals = ({
                             </tbody>
                         </table>
                     </div>
-                    <div className='mt-8 flex justify-end'>
+
+                    <div className='mt-6 md:mt-8 flex justify-end'>
                         <button
-                            className='bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-black py-4 px-10 rounded-2xl shadow-[0_0_20px_rgba(34,197,94,0.4)] active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-3 cursor-pointer border border-green-400/20'
+                            className='bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-black py-3 md:py-4 px-8 md:px-10 rounded-2xl shadow-[0_0_20px_rgba(34,197,94,0.4)] active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-3 cursor-pointer border border-green-400/20 w-full md:w-auto justify-center'
                             onClick={() => calculateProjection(simulatedSubjects)}>
                             <Icons.Calculator className='w-5 h-5' />
                             RECALCULAR PROYECCIÓN
                         </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Modal MÁS INFORMACIÓN */}
+            <Modal
+                isOpen={activeModal === "info"}
+                onClose={() => setActiveModal(null)}
+                title='Más Información'
+                className='max-w-2xl'>
+                <div className='p-2 md:p-4 space-y-6 md:space-y-8'>
+                    <section className='space-y-3'>
+                        <div className='flex items-center gap-2 text-green-400 font-semibold mb-2'>
+                            <Lightbulb size={20} />
+                            <h3 className='uppercase tracking-wider text-xs'>
+                                Inspiración del Proyecto
+                            </h3>
+                        </div>
+                        <p className='text-zinc-300 leading-relaxed text-sm md:text-base bg-zinc-800/30 p-4 md:p-5 rounded-2xl border border-zinc-700/50 shadow-inner'>
+                            Nace de la necesidad de simplificar la vida académica, ofreciendo acceso
+                            inmediato al estado actual de tu índice y la capacidad de visualizar
+                            escenarios futuros mediante proyecciones inteligentes y accesibles.
+                        </p>
+                    </section>
+
+                    <div className='grid md:grid-cols-2 gap-4 md:gap-6'>
+                        <section className='space-y-3 bg-zinc-800/20 p-4 md:p-5 rounded-2xl border border-zinc-800'>
+                            <div className='flex items-center gap-2 text-blue-400 font-semibold mb-2'>
+                                <Target size={20} />
+                                <h3 className='uppercase tracking-wider text-xs'>Misión</h3>
+                            </div>
+                            <p className='text-zinc-400 text-sm leading-relaxed'>
+                                Proveer claridad y control sobre la trayectoria estudiantil mediante
+                                herramientas precisas de cálculo y proyección que transforman datos
+                                complejos en información accionable para la toma de decisiones.
+                            </p>
+                        </section>
+
+                        <section className='space-y-3 bg-zinc-800/20 p-4 md:p-5 rounded-2xl border border-zinc-800'>
+                            <div className='flex items-center gap-2 text-purple-400 font-semibold mb-2'>
+                                <Eye size={20} />
+                                <h3 className='uppercase tracking-wider text-xs'>Visión</h3>
+                            </div>
+                            <p className='text-zinc-400 text-sm leading-relaxed'>
+                                Ser el compañero digital esencial para todo estudiante, donde la
+                                planificación académica deja de ser una incertidumbre para
+                                convertirse en una estrategia definida y alcanzable.
+                            </p>
+                        </section>
+                    </div>
+
+                    <div className='pt-4 md:pt-6 border-t border-zinc-800 flex flex-col items-center gap-4'>
+                        <span className='text-zinc-500 text-xs'>
+                            Código fuente y contribuciones
+                        </span>
+                        <a
+                            href='https://github.com/dexfck'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='flex items-center gap-3 px-6 py-3 bg-zinc-950 hover:bg-black text-white rounded-xl transition-all hover:scale-105 border border-zinc-800 hover:border-green-500/50 group shadow-lg'>
+                            <Github
+                                size={20}
+                                className='group-hover:text-green-500 transition-colors'
+                            />
+                            <span className='font-medium font-mono'>github.com/dexfck</span>
+                        </a>
                     </div>
                 </div>
             </Modal>
@@ -617,7 +722,7 @@ export const HomeModals = ({
                 isOpen={activeModal === "logout"}
                 onClose={() => setActiveModal(null)}
                 title='Confirmar Cierre de Sesión'>
-                <div className='text-center p-8'>
+                <div className='text-center p-6 md:p-8'>
                     <div className='w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6'>
                         <Icons.Logout className='w-8 h-8 text-red-500' />
                     </div>
@@ -625,7 +730,7 @@ export const HomeModals = ({
                     <p className='text-zinc-400 mb-8 max-w-sm mx-auto'>
                         Se borrarán los datos almacenados en este dispositivo.
                     </p>
-                    <div className='flex gap-4 justify-center'>
+                    <div className='flex flex-col sm:flex-row gap-4 justify-center'>
                         <button
                             onClick={() => setActiveModal(null)}
                             className='px-6 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium transition-colors border border-zinc-700 cursor-pointer'>

@@ -32,7 +32,7 @@ function Login() {
             {/* Logo / Título Principal (MODIFICADO) */}
             <div className='mb-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-700'>
                 {/* Se eliminó el contenedor tipo botón (bg-green-900/20, border, etc.) */}
-                <h1 className='text-5xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-sans mb-3 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'>
+                <h1 className='text-3xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-sans mb-3 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'>
                     UNPHROMEDIO
                 </h1>
                 <p className='text-zinc-400 text-sm font-medium tracking-wider uppercase'>
