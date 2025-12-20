@@ -1,4 +1,4 @@
-name: Android Build & Sign v1
+name: Web to Android APK v2
 
 on:
     push:
@@ -10,45 +10,66 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            # 1. Bajar código
+            # 1. Bajar tu código Web
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            # 2. Configurar Java
+            # 2. Configurar Java 17 (Necesario para Android)
             - name: Setup Java
               uses: actions/setup-java@v4
               with:
                   distribution: "temurin"
                   java-version: "17"
-                  cache: "gradle"
 
-            # 3. Restaurar Keystore desde Secretos
+            # 3. Configurar Node.js (Para React y Capacitor)
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            # 4. Instalar dependencias y Capacitor
+            - name: Install Dependencies
+              run: |
+                  npm install
+                  npm install @capacitor/core @capacitor/cli @capacitor/android
+
+            # 5. Compilar tu Web (Crea la carpeta dist)
+            - name: Build Web App
+              run: npm run build
+
+            # 6. Inicializar Capacitor y Crear Plataforma Android (¡La Magia!)
+            # Nota: Cambia 'com.unphromedio.app' por el ID que quieras
+            - name: Initialize Capacitor Android
+              run: |
+                  npx cap init UnphroMedio com.unphromedio.app --web-dir=dist --no-question
+                  npx cap add android
+
+            # 7. Recuperar tu Keystore (Firma) desde Secretos
             - name: Decode Keystore
               env:
                   ENCODED_STRING: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
               run: |
-                  echo $ENCODED_STRING | base64 --decode > app/release-key.jks
+                  echo $ENCODED_STRING | base64 --decode > android/app/release-key.jks
 
-            # 4. Permisos de ejecución
-            - name: Make gradlew executable
-              run: chmod +x gradlew
-
-            # 5. Compilar APK Firmado
+            # 8. Compilar APK Firmado
+            # Entramos a la carpeta 'android' que acabamos de crear para ejecutar Gradle
             - name: Build Signed APK
               env:
                   KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
                   KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
                   KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+              working-directory: ./android
               run: |
+                  chmod +x gradlew
                   ./gradlew assembleRelease \
                     -Pandroid.injected.signing.store.file=$(pwd)/app/release-key.jks \
                     -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
                     -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
                     -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
-            # 6. Guardar APK como descargable
+            # 9. Subir el APK resultante
             - name: Upload APK
               uses: actions/upload-artifact@v4
               with:
-                  name: app-release
-                  path: app/build/outputs/apk/release/*.apk
+                  name: app-release-signed
+                  path: android/app/build/outputs/apk/release/*.apk
