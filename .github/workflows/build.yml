@@ -40,7 +40,7 @@ jobs:
             # 6. Inicializar Capacitor y Crear Plataforma Android
             - name: Initialize Capacitor Android
               run: |
-                  npx cap init UnphroMedio com.unphromedio.app --web-dir=dist
+                  npx cap init UNPHROMEDIO com.unphromedio.app --web-dir=dist
                   npx cap add android
 
             # 7. Recuperar Keystore
