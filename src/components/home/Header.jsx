@@ -6,14 +6,14 @@ export const Header = ({user, shortName, selectedPeriod, setSelectedPeriod, onMe
     if (isMobile) {
         // VERSIÓN MÓVIL con dropdown centrado
         return (
-            <header className='bg-zinc-800 rounded-lg flex items-center justify-between px-4 py-3 border border-zinc-700 shadow-xl relative '>
-                <button onClick={onMenuClick} className='p-2 bg-zinc-900 border border-zinc-700  rounded-lg z-10'>
+            <header className='bg-zinc-800 rounded-lg grid grid-flow-col h-17 grid-cols-12 px-4 py-3 border border-zinc-700 shadow-xl relative '>
+                <button onClick={onMenuClick} className='p-2 w-11 h-fit col-span-1 bg-zinc-900 border border-zinc-700  rounded-lg z-10'>
                     <Menu className='w-6 h-6  text-green-500' />
                 </button>
 
                 {/* Dropdown centrado con z-index alto */}
-                <div className=''>
-                    <PeriodDropdown selected={selectedPeriod} options={Array.from({length: 12}, (_, i) => i + 1)} onChange={setSelectedPeriod} w={"w-58"} />
+                <div className='col-start-3 col-span-11'>
+                    <PeriodDropdown selected={selectedPeriod} options={Array.from({length: 12}, (_, i) => i + 1)} onChange={setSelectedPeriod} w={" w-full"} />
                 </div>
             </header>
         )
@@ -27,7 +27,7 @@ export const Header = ({user, shortName, selectedPeriod, setSelectedPeriod, onMe
             </div>
 
             <div className='absolute left-1/2 transform -translate-x-1/2 z-50'>
-                <PeriodDropdown selected={selectedPeriod} options={Array.from({length: 12}, (_, i) => i + 1)} onChange={setSelectedPeriod} w={"w-70"}  />
+                <PeriodDropdown selected={selectedPeriod} options={Array.from({length: 12}, (_, i) => i + 1)} onChange={setSelectedPeriod} w={"w-70"} />
             </div>
 
             <div className='flex items-center gap-4 bg-zinc-900/50 pr-6 pl-2 py-2 rounded-lg border border-zinc-700 hover:border-zinc-600 transition-colors cursor-default'>

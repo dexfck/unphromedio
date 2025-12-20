@@ -35,5 +35,10 @@ body {
 body,
 html {
     @apply bg-zinc-900;
+}
+
+body,
+#root {
     overscroll-behavior-y: none;
+    overflow: hidden;
 }

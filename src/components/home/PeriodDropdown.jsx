@@ -16,7 +16,7 @@ export const PeriodDropdown = ({selected, options, onChange, w}) => {
     }, [])
 
     return (
-        <div className={` ${w ? w : "w-fit"}`} ref={dropdownRef}>
+        <div className={` ${w ? w : "w-full"}`} ref={dropdownRef}>
             {/* Botón Trigger */}
             <button onClick={() => setIsOpen(!isOpen)} className={`w-full bg-zinc-900 border ${isOpen ? "border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]" : "border-zinc-700"} text-white py-2 px-4 rounded-lg flex items-center justify-between font-bold font-sans transition-all duration-200 hover:border-green-500/50 cursor-pointer active:scale-[0.99]`}>
                 <span>Periodo {selected}</span>
